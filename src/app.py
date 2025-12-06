@@ -20,17 +20,20 @@ st.title("Enterprise Data Analytics & KPI Monitoring System")
 # ---------- Filters ----------
 st.subheader("Filters")
 
-# DATE FILTER
-min_date = df["date"].min()
-max_date = df["date"].max()
+min_date = df["date"].min().date()      # ✔ uncommented
+max_date = df["date"].max().date()
 
-start_date, end_date = st.date_input(
+date_range = st.date_input(
     "Select Date Range",
-    value=[min_date, max_date]
+    value=(min_date, max_date)
 )
 
-filtered_df = df[(df["date"] >= pd.to_datetime(start_date)) &
-                 (df["date"] <= pd.to_datetime(end_date))]
+# Handle single date selection
+if isinstance(date_range, tuple):
+    start_date, end_date = date_range
+else:
+    start_date = date_range
+    end_date = date_range
 
 # REGION FILTER
 regions = filtered_df["region"].unique().tolist()
