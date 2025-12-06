@@ -1,0 +1,6 @@
+date,region,product_id,product_name,units_sold,unit_price,revenue,customer_id
+2025-01-01,South,101,ProductA,10,500,5000,C1001
+2025-01-02,North,102,ProductB,5,700,3500,C1002
+2025-01-03,East,103,ProductC,8,600,4800,C1003
+2025-01-04,West,104,ProductD,12,450,5400,C1004
+2025-01-05,South,105,ProductE,7,550,3850,C1005
