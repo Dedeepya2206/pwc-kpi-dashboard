@@ -20,20 +20,17 @@ st.title("Enterprise Data Analytics & KPI Monitoring System")
 # ---------- Filters ----------
 st.subheader("Filters")
 
-min_date = df["date"].min().date()      # ✔ uncommented
-max_date = df["date"].max().date()
+# DATE FILTER
+min_date = df["date"].min()
+max_date = df["date"].max()
 
-date_range = st.date_input(
+start_date, end_date = st.date_input(
     "Select Date Range",
-    value=(min_date, max_date)
+    value=[min_date, max_date]
 )
 
-# Handle single date selection
-if isinstance(date_range, tuple):
-    start_date, end_date = date_range
-else:
-    start_date = date_range
-    end_date = date_range
+filtered_df = df[(df["date"] >= pd.to_datetime(start_date)) &
+                 (df["date"] <= pd.to_datetime(end_date))]
 
 # REGION FILTER
 regions = filtered_df["region"].unique().tolist()
@@ -57,7 +54,7 @@ unique_customers = filtered_df["customer_id"].nunique()
 avg_order_value = total_revenue / max(1, len(filtered_df))
 
 # Monthly Revenue Growth
-monthly = filtered_df.resample("Me", on="date")["revenue"].sum()
+monthly = filtered_df.resample("ME", on="date")["revenue"].sum()
 
 if len(monthly) > 1:
     growth = ((monthly.iloc[-1] - monthly.iloc[-2]) / monthly.iloc[-2]) * 100
@@ -80,8 +77,7 @@ fig = px.line(
     y="revenue",
     title="Revenue Over Time"
 )
-st.plotly_chart(fig, width="stretch", key="revenue_time_chart")
-
+st.plotly_chart(fig, width="stretch")
 
 # ---------- Revenue by Region Chart ----------
 fig2 = px.bar(
@@ -90,8 +86,7 @@ fig2 = px.bar(
     y="revenue",
     title="Revenue by Region"
 )
-st.plotly_chart(fig2, width="stretch", key="revenue_region_chart")
-
+st.plotly_chart(fig2, use_container_width=True)
 
 # ---------- Top Products ----------
 st.subheader("Top Products")
@@ -99,8 +94,9 @@ top = filtered_df.groupby("product_name")[["revenue", "units_sold"]].sum().reset
 top = top.sort_values("revenue", ascending=False)
 st.table(top)
 
-
 # ---------- Revenue Share by Region (Pie Chart) ----------
+st.subheader("Revenue Share by Region")
+
 region_pie = filtered_df.groupby("region")["revenue"].sum().reset_index()
 
 fig3 = px.pie(
@@ -109,10 +105,12 @@ fig3 = px.pie(
     values="revenue",
     title="Revenue Distribution by Region"
 )
-st.plotly_chart(fig3, width="stretch", key="revenue_pie_chart")
 
+st.plotly_chart(fig3, width="stretch")
 
 # ---------- Product Performance ----------
+st.subheader("Product Performance (Revenue vs Units Sold)")
+
 product_perf = filtered_df.groupby("product_name")[["revenue", "units_sold"]].sum().reset_index()
 
 fig4 = px.bar(
@@ -120,11 +118,10 @@ fig4 = px.bar(
     x="product_name",
     y="revenue",
     color="units_sold",
-    title="Product Performance (Revenue vs Units Sold)",
+    title="Product Performance",
 )
-st.plotly_chart(fig4, width="stretch", key="product_performance_chart")
 
-
+st.plotly_chart(fig4, width="stretch")
 
 # ---------- Download Filtered Data ----------
 st.subheader("Download Data")
